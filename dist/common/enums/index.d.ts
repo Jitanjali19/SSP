@@ -1,2 +1,0 @@
-export { UserRole, UserStatus, VendorStatus, PatientRegistrationStatus, Gender, CampStatus, CampCategoryScope, EligibilityStatus, AttendanceStatus, QuestionnaireTierCode, MemberRole, AssignmentRole, ReportStatus, FileType, DeliveryChannel, } from '@prisma/client';
-//# sourceMappingURL=index.d.ts.map

@@ -1,1 +1,0 @@
-{"version":3,"file":"modules.js","sourceRoot":"","sources":["../../../src/common/constants/modules.ts"],"names":[],"mappings":";;;AAAa,QAAA,OAAO,GAAG;IACrB,KAAK,EAAE,OAAO;IACd,MAAM,EAAE,QAAQ;IAChB,OAAO,EAAE,SAAS;IAClB,QAAQ,EAAE,UAAU;IACpB,KAAK,EAAE,OAAO;IACd,cAAc,EAAE,gBAAgB;IAChC,WAAW,EAAE,aAAa;IAC1B,OAAO,EAAE,SAAS;IAClB,UAAU,EAAE,YAAY;IACxB,SAAS,EAAE,WAAW;CACd,CAAC"}
