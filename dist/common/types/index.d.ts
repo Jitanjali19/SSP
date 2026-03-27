@@ -14,12 +14,12 @@ export interface PaginationMeta {
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     pagination: PaginationMeta;
 }
+import { UserRole } from '@prisma/client';
 export interface UserPayload {
     id: string;
-    role: string;
+    role: UserRole;
     email: string;
 }
-import { UserRole } from '@prisma/client';
 export interface AuditLogData {
     actorUserId: string;
     actorRole: UserRole;

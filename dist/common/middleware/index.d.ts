@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '../enums';
+import { UserRole } from '@prisma/client';
 import { UserPayload } from '../types';
 declare global {
     namespace Express {

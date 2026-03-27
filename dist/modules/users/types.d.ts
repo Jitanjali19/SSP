@@ -5,6 +5,8 @@ export interface CreateUserRequest {
     phone: string;
     password: string;
     role: UserRole;
+    status?: UserStatus;
+    isActive?: boolean;
 }
 export interface UpdateUserRequest {
     fullName?: string;
