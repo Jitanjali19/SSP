@@ -42,9 +42,23 @@ export class PatientController {
     sendSuccess(res, 'QR code generated successfully', { qrUrl: result });
   }
 
-  async viewOwnReports(req: Request, res: Response) {
-    const patientId = req.user!.id; // Assuming patient user
-    const result = await patientService.getPatientHistory(patientId);
-    sendSuccess(res, 'Reports retrieved successfully', result);
+  async approvePatientRegistration(req: Request, res: Response) {
+    const { id } = req.params;
+    const adminId = req.user!.id;
+    const result = await patientService.approvePatientRegistration(id, adminId);
+    sendSuccess(res, 'Patient approved successfully', result);
+  }
+
+  async rejectPatientRegistration(req: Request, res: Response) {
+    const { id } = req.params;
+    const adminId = req.user!.id;
+    const { reason } = req.body;
+    const result = await patientService.rejectPatientRegistration(id, adminId, reason);
+    sendSuccess(res, 'Patient rejected successfully', result);
+  }
+
+  async getPendingPatients(req: Request, res: Response) {
+    const result = await patientService.getPendingPatients();
+    sendSuccess(res, 'Pending patients retrieved successfully', result);
   }
 }

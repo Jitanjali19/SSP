@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthRepository } from './repository';
 import { LoginRequest, RegisterRequest, AuthResponse } from './types';
 import { AppError } from '../../common/errors/AppError';
+import { UserRole } from '@prisma/client';
 
 const authRepo = new AuthRepository();
 
@@ -18,8 +19,9 @@ export class AuthService {
       throw new AppError('Invalid credentials', 401);
     }
 
-    if (user.status !== 'ACTIVE') {
-      throw new AppError('Account is not active', 403);
+    // SUPER_ADMIN bypasses approval check - they are always allowed to login
+    if (user.role !== UserRole.SUPER_ADMIN && user.status !== 'ACTIVE') {
+      throw new AppError('Account is pending approval or not active', 403);
     }
 
     const token = jwt.sign(
@@ -47,12 +49,19 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
+    // SUPER_ADMIN is auto-approved and active immediately on registration
+    // Other roles remain PENDING and require approval
+    const statusForRole = data.role === UserRole.SUPER_ADMIN ? 'ACTIVE' : 'PENDING';
+    const isActiveForRole = data.role === UserRole.SUPER_ADMIN;
+
     const user = await authRepo.createUser({
       fullName: data.fullName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
       role: data.role,
+      status: statusForRole,
+      isActive: isActiveForRole,
     });
 
     const token = jwt.sign(

@@ -5,6 +5,7 @@ import { asyncHandler } from '../../common/utils';
 import { authenticate, authorize } from '../../common/middleware';
 import { createUserSchema, updateUserSchema, userIdSchema, changeStatusSchema } from './validation';
 import { UserRole } from '@prisma/client';
+import { z } from 'zod';
 
 const router = Router();
 const usersController = new UsersController();
@@ -56,4 +57,29 @@ router.patch(
   asyncHandler(usersController.changeUserStatus.bind(usersController))
 );
 
+// Vendor approval endpoints - ADMIN only
+router.get(
+  '/vendors/pending',
+  authenticate,
+  authorize(UserRole.ADMIN),
+  asyncHandler(usersController.getPendingVendors.bind(usersController))
+);
+
+router.post(
+  '/vendors/:vendorId/approve',
+  authenticate,
+  authorize(UserRole.ADMIN),
+  validateRequest(z.object({ params: z.object({ vendorId: z.string() }) })),
+  asyncHandler(usersController.approveVendor.bind(usersController))
+);
+
+router.post(
+  '/vendors/:vendorId/reject',
+  authenticate,
+  authorize(UserRole.ADMIN),
+  validateRequest(z.object({ params: z.object({ vendorId: z.string() }), body: z.object({ reason: z.string() }) })),
+  asyncHandler(usersController.rejectVendor.bind(usersController))
+);
+
 export default router;
+

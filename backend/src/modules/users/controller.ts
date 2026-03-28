@@ -43,4 +43,24 @@ export class UsersController {
     const user = await userService.changeUserStatus(id, req.body);
     sendSuccess(res, 'User status updated successfully', user);
   }
+
+  async approveVendor(req: Request, res: Response) {
+    const { vendorId } = req.params;
+    const adminId = req.user!.id;
+    const result = await userService.approveVendor(vendorId, adminId);
+    sendSuccess(res, 'Vendor approved successfully', result);
+  }
+
+  async rejectVendor(req: Request, res: Response) {
+    const { vendorId } = req.params;
+    const adminId = req.user!.id;
+    const { reason } = req.body;
+    const result = await userService.rejectVendor(vendorId, adminId, reason);
+    sendSuccess(res, 'Vendor rejected successfully', result);
+  }
+
+  async getPendingVendors(req: Request, res: Response) {
+    const result = await userService.getPendingVendors();
+    sendSuccess(res, 'Pending vendors retrieved successfully', result);
+  }
 }

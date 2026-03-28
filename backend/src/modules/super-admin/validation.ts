@@ -29,6 +29,6 @@ export const updateAdminStatusSchema = z.object({
     id: uuidSchema,
   }),
   body: z.object({
-    status: z.enum(['ACTIVE', 'SUSPENDED']),
+    status: z.enum(['PENDING', 'ACTIVE', 'REJECTED', 'SUSPENDED']),
   }),
 });

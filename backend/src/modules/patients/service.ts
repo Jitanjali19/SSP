@@ -6,6 +6,7 @@ import { calculateAge, maskId, generateQRCode, generateUUID } from '../../common
 import { SamagraService } from '../../common/services/SamagraService';
 import { AbhaService } from '../../common/services/AbhaService';
 import { AppError } from '../../common/errors/AppError';
+import prisma from '../../config/database';
 
 const patientRepo = new PatientRepository();
 const authRepo = new AuthRepository();
@@ -98,6 +99,12 @@ export class PatientService {
     const patient = await patientRepo.findPatientById(patientId);
     if (!patient) throw new AppError('Patient not found', 404);
 
+    // Verify that the requester is actually an ADMIN
+    const admin = await prisma.admin.findUnique({ where: { userId: adminId } });
+    if (!admin) {
+      throw new AppError('Only ADMIN can approve patients', 403);
+    }
+
     await patientRepo.updatePatient(patientId, {
       registrationStatus: PatientRegistrationStatus.APPROVED,
       approvedByAdminId: adminId,
@@ -110,6 +117,12 @@ export class PatientService {
   async rejectPatientRegistration(patientId: string, adminId: string, reason: string) {
     const patient = await patientRepo.findPatientById(patientId);
     if (!patient) throw new AppError('Patient not found', 404);
+
+    // Verify that the requester is actually an ADMIN
+    const admin = await prisma.admin.findUnique({ where: { userId: adminId } });
+    if (!admin) {
+      throw new AppError('Only ADMIN can reject patients', 403);
+    }
 
     await patientRepo.updatePatient(patientId, {
       registrationStatus: PatientRegistrationStatus.REJECTED,

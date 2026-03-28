@@ -16,6 +16,8 @@ export class AuthRepository {
     phone: string;
     passwordHash: string;
     role: UserRole;
+    status?: string;
+    isActive?: boolean;
   }): Promise<User> {
     return prisma.user.create({ data });
   }
