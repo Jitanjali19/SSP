@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
@@ -36,7 +37,7 @@ const roleToInitialScreen: Record<UserRole, keyof RootStackParamList> = {
 };
 
 export default function RoleBasedNavigator() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const route = useRoute<MainRouteProp>();
 
   if (!user) return null;
@@ -47,7 +48,24 @@ export default function RoleBasedNavigator() {
   const startScreen = roleToInitialScreen[effectiveRole] || 'PatientDashboard';
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={startScreen}>
+    <Stack.Navigator
+      screenOptions={({ navigation }) => ({
+        headerShown: true,
+        headerTitleAlign: 'center',
+        headerRight: () => (
+          <Button
+            mode="text"
+            onPress={async () => {
+              await logout();
+            }}
+            style={{ marginRight: 10 }}
+          >
+            Logout
+          </Button>
+        ),
+      })}
+      initialRouteName={startScreen}
+    >
       <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
       <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
       <Stack.Screen name="FieldStaffDashboard" component={FieldStaffDashboard} />

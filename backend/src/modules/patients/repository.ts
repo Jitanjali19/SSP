@@ -46,6 +46,10 @@ export class PatientRepository {
     return prisma.patient.findUnique({ where: { qrCodeValue } });
   }
 
+  async findPatientByUserId(userId: string): Promise<Patient | null> {
+    return prisma.patient.findUnique({ where: { userId } });
+  }
+
   async updatePatient(id: string, data: Partial<Patient>): Promise<Patient> {
     return prisma.patient.update({ where: { id }, data });
   }
@@ -56,7 +60,12 @@ export class PatientRepository {
       include: {
         camp: true,
         assessment: true,
-        report: true,
+        report: {
+          include: {
+            assessedBy: true,
+            documents: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

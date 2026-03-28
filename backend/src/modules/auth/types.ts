@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { UserRole, UserStatus } from '@prisma/client';
 
 export interface LoginRequest {
   email: string;
@@ -34,7 +34,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   role: UserRole;
-  status: string;
+  status: UserStatus;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

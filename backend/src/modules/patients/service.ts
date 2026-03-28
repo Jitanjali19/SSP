@@ -137,6 +137,45 @@ export class PatientService {
     return patientRepo.getPendingPatients();
   }
 
+  async getOwnReports(userId: string) {
+    // Find the patient record for this user
+    const patient = await patientRepo.findPatientByUserId(userId);
+    if (!patient) {
+      throw new AppError('Patient record not found', 404);
+    }
+
+    // Get patient's camp visit history which includes reports
+    const history = await patientRepo.getPatientHistory(patient.id);
+
+    // Filter to only include visits that have reports
+    const reports = history.filter(visit => visit.report).map(visit => ({
+      id: visit.report!.id,
+      patientVisitId: visit.report!.patientVisitId,
+      diagnosis: visit.report!.diagnosis,
+      prescription: visit.report!.prescription,
+      remarks: visit.report!.remarks,
+      reportSummary: visit.report!.reportSummary,
+      reportStatus: visit.report!.reportStatus,
+      submittedAt: visit.report!.submittedAt,
+      createdAt: visit.report!.createdAt,
+      camp: {
+        id: visit.camp.id,
+        name: visit.camp.campName,
+        venue: visit.camp.venueName,
+        address: visit.camp.address,
+        campDate: visit.camp.scheduledDate,
+      },
+      assessedBy: {
+        id: visit.report!.assessedBy.id,
+        fullName: visit.report!.assessedBy.fullName,
+        role: visit.report!.assessedBy.role,
+      },
+      documents: visit.report!.documents,
+    }));
+
+    return reports;
+  }
+
   private mapToProfile(patient: any): PatientProfile {
     return {
       id: patient.id,

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { SuperAdminRepository } from './repository';
 import { AuthRepository } from '../auth/repository';
 import { CreateAdminRequest, AssignModuleAccessRequest } from './types';
-import { UserRole } from '../../common/enums';
+import { UserRole, UserStatus } from '../../common/enums';
 import { AppError } from '../../common/errors/AppError';
 import { ApprovalValidator } from '../../common/validators/approvalValidator';
 import prisma from '../../config/database';
@@ -26,7 +26,7 @@ export class SuperAdminService {
       phone: data.phone,
       passwordHash: hashedPassword,
       role: UserRole.ADMIN,
-      status: 'PENDING',
+      status: UserStatus.PENDING,
       isActive: false,
     });
 
@@ -45,7 +45,7 @@ export class SuperAdminService {
     return superAdminRepo.findAdmins();
   }
 
-  async updateAdminStatus(adminId: string, status: string, superAdminId?: string) {
+  async updateAdminStatus(adminId: string, status: UserStatus, superAdminId?: string) {
     // Get the admin to find the user ID
     const admin = await superAdminRepo.findAdminById(adminId);
     if (!admin) {
@@ -65,7 +65,7 @@ export class SuperAdminService {
     }
 
     // Validate the status change
-    ApprovalValidator.validateStatusChange(UserRole.SUPER_ADMIN, UserRole.ADMIN, status as any);
+    ApprovalValidator.validateStatusChange(UserRole.SUPER_ADMIN, UserRole.ADMIN, status);
 
     return superAdminRepo.updateAdminStatus(adminId, status);
   }

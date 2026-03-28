@@ -23,6 +23,8 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const ENABLE_AUTH_PERSISTENCE = true; // set false to disable persisted login for dev/testing
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -33,6 +35,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const loadAuth = async () => {
+    if (!ENABLE_AUTH_PERSISTENCE) {
+      setIsLoading(false);
+      return;
+    }
+
     const t = await AsyncStorage.getItem('token');
     const u = await AsyncStorage.getItem('user');
 
@@ -58,14 +65,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
 
-    await AsyncStorage.setItem('token', data.token);
-    await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
+    if (ENABLE_AUTH_PERSISTENCE) {
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
+    }
   };
 
   const logout = async () => {
     setUser(null);
     setToken(null);
     delete api.defaults.headers.common.Authorization;
+
+    // always clear persisted data (when present)
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
   };

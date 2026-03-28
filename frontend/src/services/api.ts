@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthResponse, UserRole, Patient } from '../types';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.43.135:5000/api';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.43.214:5002/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -33,7 +33,7 @@ export const authAPI = {
     email: string;
     phone: string;
     password: string;
-    role: 'VENDOR' | 'PATIENT';
+    role: UserRole;
   }): Promise<AuthResponse> => {
     const payload = {
       fullName: data.fullName.trim(),

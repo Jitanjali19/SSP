@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthRepository } from './repository';
 import { LoginRequest, RegisterRequest, AuthResponse } from './types';
 import { AppError } from '../../common/errors/AppError';
-import { UserRole } from '@prisma/client';
+import { UserRole, UserStatus } from '@prisma/client';
 
 const authRepo = new AuthRepository();
 
@@ -20,7 +20,7 @@ export class AuthService {
     }
 
     // SUPER_ADMIN bypasses approval check - they are always allowed to login
-    if (user.role !== UserRole.SUPER_ADMIN && user.status !== 'ACTIVE') {
+    if (user.role !== UserRole.SUPER_ADMIN && user.status !== UserStatus.ACTIVE) {
       throw new AppError('Account is pending approval or not active', 403);
     }
 
@@ -51,7 +51,7 @@ export class AuthService {
 
     // SUPER_ADMIN is auto-approved and active immediately on registration
     // Other roles remain PENDING and require approval
-    const statusForRole = data.role === UserRole.SUPER_ADMIN ? 'ACTIVE' : 'PENDING';
+    const statusForRole = data.role === UserRole.SUPER_ADMIN ? UserStatus.ACTIVE : UserStatus.PENDING;
     const isActiveForRole = data.role === UserRole.SUPER_ADMIN;
 
     const user = await authRepo.createUser({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, Card, Title, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { authAPI } from '../services/api';
@@ -20,15 +20,21 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async () => {
+    setErrorMessage('');
+
     if (!email || !password) {
-      Alert.alert('Validation', 'Please enter both email and password.');
+      setErrorMessage('Please enter both email and password.');
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await authAPI.login({ email, password });
+      const res = await authAPI.login({ email: email.trim(), password });
       await login(res);
 
       const normalizedRole = res.user.role?.toUpperCase();
@@ -39,25 +45,100 @@ export default function LoginScreen() {
       });
     } catch (e: any) {
       console.log(e?.response?.data || e);
-      const message = e?.response?.data?.message || 'Login failed. Please check your credentials.';
-      Alert.alert('Login Failed', message);
+      const backendMessage = e?.response?.data?.message;
+      if (e?.response?.status === 403 && backendMessage) {
+        setErrorMessage(backendMessage);
+      } else {
+        const message = backendMessage || 'Login failed. Please check your credentials.';
+        setErrorMessage(message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <TextInput label="Email" value={email} onChangeText={setEmail} />
-      <TextInput label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title style={styles.title}>Login</Title>
 
-      <Button mode="contained" onPress={handleLogin}>Login</Button>
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+          />
 
-      <Button onPress={() => navigation.navigate("Register")}>
-        Register
-      </Button>
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? 'eye-off' : 'eye'}
+                onPress={() => setShowPassword((prev) => !prev)}
+              />
+            }
+            style={styles.input}
+          />
+
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            loading={isLoading}
+            disabled={isLoading}
+            style={styles.submitButton}
+          >
+            Login
+          </Button>
+
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate('Register')}
+            style={styles.linkButton}
+          >
+            Create a new account
+          </Button>
+        </Card.Content>
+      </Card>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 }
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#f3f5f9',
+  },
+  card: {
+    padding: 10,
+    borderRadius: 10,
+    elevation: 4,
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  input: {
+    marginBottom: 12,
+  },
+  submitButton: {
+    marginTop: 8,
+  },
+  linkButton: {
+    marginTop: 4,
+  },
+  errorText: {
+    color: '#b00020',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
 });

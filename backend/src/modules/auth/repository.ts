@@ -1,5 +1,5 @@
 import prisma from '../../config/database';
-import { User, UserRole } from '@prisma/client';
+import { User, UserRole, UserStatus } from '@prisma/client';
 
 export class AuthRepository {
   async findUserByEmail(email: string): Promise<User | null> {
@@ -16,7 +16,7 @@ export class AuthRepository {
     phone: string;
     passwordHash: string;
     role: UserRole;
-    status?: string;
+    status?: UserStatus;
     isActive?: boolean;
   }): Promise<User> {
     return prisma.user.create({ data });

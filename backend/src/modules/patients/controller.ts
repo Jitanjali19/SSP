@@ -61,4 +61,10 @@ export class PatientController {
     const result = await patientService.getPendingPatients();
     sendSuccess(res, 'Pending patients retrieved successfully', result);
   }
+
+  async viewOwnReports(req: Request, res: Response) {
+    const userId = req.user!.id;
+    const result = await patientService.getOwnReports(userId);
+    sendSuccess(res, 'Reports retrieved successfully', result);
+  }
 }

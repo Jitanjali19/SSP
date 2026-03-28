@@ -1,5 +1,5 @@
 import prisma from '../../config/database';
-import { Admin, User, RolePermission } from '@prisma/client';
+import { Admin, User, RolePermission, UserStatus } from '@prisma/client';
 
 export class SuperAdminRepository {
   async createAdmin(data: {
@@ -21,10 +21,10 @@ export class SuperAdminRepository {
     return prisma.admin.findUnique({ where: { id } });
   }
 
-  async updateAdminStatus(id: string, status: string): Promise<User> {
+  async updateAdminStatus(id: string, status: UserStatus): Promise<User> {
     return prisma.user.update({
       where: { id: (await this.findAdminById(id))?.userId },
-      data: { status: status as any },
+      data: { status },
     });
   }
 
